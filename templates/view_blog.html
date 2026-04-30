@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}{{ blog.title }} — BlogApp{% endblock %}
+
+{% block extra_styles %}
+.post-layout {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.post-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 28px;
+    transition: color 0.15s;
+}
+
+.post-back:hover { color: var(--brand); text-decoration: none; }
+
+.post-header { margin-bottom: 28px; }
+
+.post-title {
+    font-family: 'Merriweather', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+    margin-bottom: 16px;
+}
+
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.post-meta .avatar { width: 38px; height: 38px; font-size: 0.9rem; }
+
+.post-meta-info { display: flex; flex-direction: column; gap: 2px; }
+
+.post-meta-author {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.post-meta-date {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.post-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+}
+
+.post-body {
+    font-family: 'Merriweather', serif;
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: #374151;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+    .post-title { font-size: 1.5rem; }
+    .post-body  { font-size: 1rem; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="post-layout">
+    <a href="{{ url_for('blog') }}" class="post-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        All posts
+    </a>
+
+    <header class="post-header">
+        <h1 class="post-title">{{ blog.title }}</h1>
+        <div class="post-meta">
+            <span class="avatar">{{ blog.author[0].upper() }}</span>
+            <div class="post-meta-info">
+                <span class="post-meta-author">{{ blog.author }}</span>
+                <span class="post-meta-date">{{ blog.created_date.strftime('%B %d, %Y at %H:%M') }}</span>
+            </div>
+        </div>
+    </header>
+
+    <hr class="post-divider">
+
+    <div class="post-body">{{ blog.text }}</div>
+
+    <div class="post-actions">
+        <a href="{{ url_for('blog') }}" class="btn btn-ghost">← Back to Posts</a>
+        {% if session.get('email') == blog.author_email %}
+        <form action="{{ url_for('delete_blog', blog_id=blog.id) }}" method="POST"
+              onsubmit="return confirm('Delete this post?')">
+            <button type="submit" class="btn btn-danger">Delete Post</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

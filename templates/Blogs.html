@@ -1,128 +1,150 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Posts</title>
-</head>
-<body>
-    <h1>Blog Posts</h1>
+{% extends 'base.html' %}
+{% block title %}Posts — BlogApp{% endblock %}
+
+{% block extra_styles %}
+.posts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.posts-header h1 { margin-bottom: 0; }
+
+/* ── Post card ── */
+.post-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 28px;
+    margin-bottom: 18px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.post-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.post-card__title {
+    font-family: 'Merriweather', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    line-height: 1.4;
+}
+
+.post-card__title:hover { color: var(--brand); text-decoration: none; }
+
+.post-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.post-card__meta .avatar { width: 26px; height: 26px; font-size: 0.7rem; }
+
+.post-card__meta-text {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.post-card__preview {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.7;
+}
+
+.post-card__footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+/* ── Empty state ── */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+}
+
+.empty-state .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: .4;
+}
+
+.empty-state h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.empty-state p { font-size: 0.9rem; }
+{% endblock %}
+
+{% block content %}
+<div class="posts-header">
+    <h1 class="page-title">Latest Posts</h1>
+    {% if session.get('email') %}
+    <a href="{{ url_for('create_blog') }}" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Post
+    </a>
+    {% endif %}
+</div>
+
+{% if blogs %}
     {% for blog in blogs %}
-    <div>
-        <h2>{{ blog.title }}</h2>
-        <p><strong>Author:</strong> {{ blog.author }}</p>
-        <p><strong>Created on:</strong> {{ blog.created_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-        {% if blog.published_date %}
-        <p><strong>Published on:</strong> {{ blog.published_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-        {% endif %}
-        <p>{{ blog.text |safe }}</p>
-    </div>
-    <hr>
-    {% endfor %}
-    <a href="{{ url_for('create_blog') }}">Create a New Blog Post</a>
-</body>
-</html> -->
-<!DOCTYPE html>
-<html lang="en">
+    <article class="post-card">
+        <a href="{{ url_for('view_blog', blog_id=blog.id) }}" class="post-card__title">
+            {{ blog.title }}
+        </a>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Posts</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #ffffff;
-        }
+        <div class="post-card__meta">
+            <span class="avatar">{{ blog.author[0].upper() }}</span>
+            <span class="post-card__meta-text">
+                <strong>{{ blog.author }}</strong> &middot; {{ blog.created_date.strftime('%b %d, %Y') }}
+            </span>
+        </div>
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 40px;
-        }
-
-        .blog-post {
-            background-color: #E3F6F8;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            padding: 20px;
-            transition: transform 0.2s;
-        }
-
-        .blog-post:hover {
-            transform: translateY(-5px);
-        }
-
-        .blog-post h2 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-
-        .blog-post p {
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .blog-meta {
-            font-size: 0.9em;
-            color: #999;
-            margin-bottom: 15px;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid #ddd;
-            margin: 30px 0;
-        }
-
-        .create-post {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            color: #fff;
-            background-color: #3498db;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-
-        .create-post:hover {
-            background-color: #2980b9;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            .blog-post {
-                padding: 15px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <h1>Blog Posts</h1>
-    {% for blog in blogs %}
-    <div class="blog-post">
-        <h2>{{ blog.title }}</h2>
-        <p class="blog-meta">
-            <strong>Author:</strong> {{ blog.author }} |
-            <strong>Created on:</strong> {{ blog.created_date.strftime('%Y-%m-%d %H:%M:%S') }}
-            {% if blog.published_date %}
-            | <strong>Published on:</strong> {{ blog.published_date.strftime('%Y-%m-%d %H:%M:%S') }}
-            {% endif %}
+        <p class="post-card__preview">
+            {{ blog.text[:220] }}{% if blog.text|length > 220 %}…{% endif %}
         </p>
-        <p>{{ blog.text |safe }}</p>
-    </div>
-    <hr>
+
+        <div class="post-card__footer">
+            <a href="{{ url_for('view_blog', blog_id=blog.id) }}" class="btn btn-ghost btn-sm">
+                Read more →
+            </a>
+            {% if session.get('email') == blog.author_email %}
+            <form action="{{ url_for('delete_blog', blog_id=blog.id) }}" method="POST"
+                  onsubmit="return confirm('Delete this post?')">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+            {% endif %}
+        </div>
+    </article>
     {% endfor %}
-    <a href="{{ url_for('create_blog') }}" class="create-post">Create a New Blog Post</a>
-</body>
-
-</html>
-
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">✍️</div>
+        <h2>No posts yet</h2>
+        <p>Be the first to share something with the world.</p>
+        {% if session.get('email') %}
+        <a href="{{ url_for('create_blog') }}" class="btn btn-primary" style="margin-top:20px;">Write the first post</a>
+        {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary" style="margin-top:20px;">Get started</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

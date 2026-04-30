@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Flask / SQLite
+instance/
+*.db
+
+# Secrets
+.secret_key
+secretkey.pyc
+
+# IDE
+.vscode/
+.idea/
